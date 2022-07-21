@@ -1,1 +1,1 @@
-export * from './posting'
+export default []

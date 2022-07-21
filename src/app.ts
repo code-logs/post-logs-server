@@ -1,14 +1,20 @@
-import { VividConsole } from './utils/vivid-console'
-import { Env } from './utils/env'
+import cors from 'cors'
 import express from 'express'
-import { apiRouter } from './controllers'
+import { apiRouters } from './apis'
+import { dataSource } from './utils/data-source'
+import { env } from './utils/env'
+import vividConsole from './utils/vivid-console'
 
 const app = express()
-const env = new Env()
 const PORT = env.get('PORT')
 
-app.use(apiRouter)
+app.use(cors({ origin: 'http://localhost:8000', credentials: true }))
+app.use(apiRouters)
 
-app.listen(PORT, () => {
-  VividConsole.log(`🚀 Application is running on ${PORT}`)
+dataSource.initialize().then(() => {
+  vividConsole.log(`💽 Database connection is established.`, true)
+
+  app.listen(PORT, () => {
+    vividConsole.log(`🚀 Application is running on ${PORT}`)
+  })
 })
