@@ -1,7 +1,11 @@
+import { VividConsole } from './utils/vivid-console'
+import { Env } from './utils/env'
 import express from 'express'
 
 const app = express()
+const env = new Env()
+const PORT = env.get('PORT')
 
-app.listen(8080, () => {
-  console.log('Application is running on 8080')
+app.listen(PORT, () => {
+  VividConsole.log(`🚀 Application is running on ${PORT}`)
 })
