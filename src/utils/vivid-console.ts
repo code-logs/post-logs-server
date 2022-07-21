@@ -1,15 +1,18 @@
 import chalk from 'chalk'
 
-export class VividConsole {
-  public static log(text: string) {
+export default {
+  log(text: unknown, withPadding = false) {
+    if (withPadding) text = `\n${text}`
     console.log(chalk.blue(text))
-  }
+  },
 
-  public static warn(text: string) {
+  warn(text: unknown, withPadding = false) {
+    if (withPadding) text = `\n${text}`
     console.log(chalk.yellowBright(text))
-  }
+  },
 
-  public static error(text: string) {
+  error(text: unknown, withPadding = false) {
+    if (withPadding) text = `\n${text}`
     console.log(chalk.redBright(text))
-  }
+  },
 }
