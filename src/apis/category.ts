@@ -8,6 +8,8 @@ categoryRouter.get(
   '/categories',
   asyncHandler(async (req, res) => {
     const { CATEGORIES } = await ConfigController.getPostConfig()
-    res.json(Object.keys(CATEGORIES))
+    res.json(
+      Object.keys(CATEGORIES).map((categoryKey) => CATEGORIES[categoryKey])
+    )
   })
 )

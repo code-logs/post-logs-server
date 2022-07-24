@@ -1,7 +1,6 @@
-import { Router, Request } from 'express'
-import { NamespaceBody } from 'typescript'
+import { Request, Router } from 'express'
 import { PostController } from '../controllers/post-controller'
-import { Post } from '../types/post'
+import { Post } from '../entities/post'
 import { asyncHandler } from '../utils/async-handler'
 
 export const postRouter = Router()
@@ -9,7 +8,7 @@ export const postRouter = Router()
 postRouter.get(
   '/posts',
   asyncHandler(async (req, res) => {
-    const posts = (await PostController.getPosts()).sort((a, b) =>
+    const posts = (await PostController.getPostsConfig()).sort((a, b) =>
       a.publishedAt > b.publishedAt ? -1 : 0
     )
     res.json(posts)
@@ -28,16 +27,8 @@ postRouter.get(
 postRouter.post(
   '/posts',
   asyncHandler(
-    async (
-      req: Request<
-        Record<string, unknown>,
-        Record<string, unknown>,
-        Post & { content: string; thumbnail: File }
-      >,
-      res
-    ) => {
+    async (req: Request<unknown, unknown, Post & { thumbnail: File }>, res) => {
       const { content, thumbnail, ...post } = req.body
-      PostController.create(post, content, thumbnail)
       res.json({})
     }
   )

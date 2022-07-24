@@ -1,8 +1,8 @@
-export interface PostRef {
+export interface PostRefConfig {
   title: string
   url: string
 }
-export interface Post {
+export interface PostConfig {
   title: string
   fileName: string
   description: string
@@ -11,7 +11,7 @@ export interface Post {
   publishedAt: string
   thumbnailName: string
   tags: string[]
-  references?: PostRef[]
+  references?: PostRefConfig[]
   series?: {
     prevPostTitle?: string
     nextPostTitle?: string

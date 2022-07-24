@@ -1,33 +1,45 @@
 import fs from 'fs'
 import * as tsNode from 'ts-node'
-import { Post } from '../types/post'
-import github from '../utils/github'
+import { Configuration } from '../entities/configuration'
+import { PostConfig } from '../types/post'
+import { DirUtil } from '../utils/dir-util'
 
+export const CONFIG_KEYS = {
+  LAST_SYNC_DATETIME: 'LAST_SYNC_DATETIME',
+}
 export class ConfigController {
-  private static async syncPostConfig() {
-    const { content, encoding } = await github.getPostConfigContent()
-    fs.writeFileSync(
-      './resources/posts.config.ts',
-      Buffer.from(content, encoding)
-    )
-  }
+  public static async compilePostConfig() {
+    fs.rmSync(DirUtil.CONFIG_JS_PATH, { force: true })
 
-  private static async compilePostConfig() {
-    const postConfigTs = fs.readFileSync('./resources/posts.config.ts')
+    const postConfigTs = fs.readFileSync(DirUtil.CONFIG_TS_PATH)
     const postConfigJs = tsNode
       .create()
-      .compile(postConfigTs.toString(), './resources/posts.config.ts')
+      .compile(postConfigTs.toString(), DirUtil.CONFIG_TS_PATH)
 
-    fs.writeFileSync('./resources/posts.config.js', postConfigJs)
+    fs.writeFileSync(DirUtil.CONFIG_JS_PATH, postConfigJs)
   }
 
   public static async getPostConfig() {
-    const postConfigPath = '../../resources/posts.config'
-    await this.syncPostConfig()
-    await this.compilePostConfig()
-    return (await import(postConfigPath)) as {
-      posts: Post[]
+    return (await import(DirUtil.CONFIG_JS_PATH)) as {
+      posts: PostConfig[]
       CATEGORIES: Record<string, string>
     }
+  }
+
+  public static getLastSyncDatetime() {
+    return Configuration.findOne({
+      where: { name: CONFIG_KEYS.LAST_SYNC_DATETIME },
+    })
+  }
+
+  public static async setLastSyncDatetime() {
+    let lastSyncDatetimeConfig = await Configuration.findOne({
+      where: { name: CONFIG_KEYS.LAST_SYNC_DATETIME },
+    })
+
+    if (!lastSyncDatetimeConfig) lastSyncDatetimeConfig = Configuration.create()
+    lastSyncDatetimeConfig.name = CONFIG_KEYS.LAST_SYNC_DATETIME
+    lastSyncDatetimeConfig.value = Date.now().toString()
+    await lastSyncDatetimeConfig.save()
   }
 }

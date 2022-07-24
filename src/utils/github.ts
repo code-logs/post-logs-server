@@ -1,8 +1,9 @@
 import { Octokit } from '@octokit/core'
+import child_process from 'child_process'
+import fs from 'fs'
+import { DirUtil } from './dir-util'
 import { env } from './env'
 import vividConsole from './vivid-console'
-import child_process from 'child_process'
-import { config } from 'dotenv'
 
 class Github {
   private readonly POST_CONFIG_PATH
@@ -46,6 +47,11 @@ class Github {
     fileName: string
   ): Promise<{ content: string; encoding: BufferEncoding }> {
     try {
+      const categoryPath = category
+        .split(' ')
+        .map((char) => char.toLowerCase())
+        .join('-')
+
       const {
         data: { content, encoding },
       } = await this.octokit.request(
@@ -53,7 +59,7 @@ class Github {
         {
           owner: 'code-logs',
           repo: 'code-logs.github.io',
-          path: `${this.POSTS_DIR_PATH}/${category}/${fileName}`,
+          path: `${this.POSTS_DIR_PATH}/${categoryPath}/${fileName}`,
           ref: 'draft',
         }
       )
@@ -67,14 +73,26 @@ class Github {
 
   public cloneRepository() {
     try {
+      this.destroyRepository()
       child_process.execSync(
-        'git clone git@$github.com:code-logs/code-logs.github.io.git ../../resources/'
+        `git clone git@github.com:code-logs/code-logs.github.io.git ${DirUtil.REPOSITORY_PATH}`
       )
       child_process.execSync(
-        `cd ../../resources && git config user.name '${env.get(
+        `cd ${DirUtil.REPOSITORY_PATH} && git config user.name '${env.get(
           'GITHUB_USERNAME'
-        )}' && git config user.email '${env.get('GITHUB_EMAIL')}'`
+        )}' && git config user.email '${env.get(
+          'GITHUB_EMAIL'
+        )}' && git checkout draft`
       )
+    } catch (e) {
+      this.handleError(e)
+      throw e
+    }
+  }
+
+  public destroyRepository() {
+    try {
+      fs.rmSync(DirUtil.REPOSITORY_PATH, { recursive: true, force: true })
     } catch (e) {
       this.handleError(e)
       throw e
