@@ -18,7 +18,7 @@ export class ConfigController {
       .create()
       .compile(postConfigTs.toString(), './resources/posts.config.ts')
 
-    fs.writeFileSync('./resources/post.config.js', postConfigJs)
+    fs.writeFileSync('./resources/posts.config.js', postConfigJs)
   }
 
   public static async getPostConfig() {
@@ -27,7 +27,7 @@ export class ConfigController {
     await this.compilePostConfig()
     return (await import(postConfigPath)) as {
       posts: Post[]
-      Categories: Record<string, string>
+      CATEGORIES: Record<string, string>
     }
   }
 }

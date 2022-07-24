@@ -1,6 +1,8 @@
 import { Octokit } from '@octokit/core'
 import { env } from './env'
 import vividConsole from './vivid-console'
+import child_process from 'child_process'
+import { config } from 'dotenv'
 
 class Github {
   private readonly POST_CONFIG_PATH
@@ -57,6 +59,22 @@ class Github {
       )
 
       return { content, encoding }
+    } catch (e) {
+      this.handleError(e)
+      throw e
+    }
+  }
+
+  public cloneRepository() {
+    try {
+      child_process.execSync(
+        'git clone git@$github.com:code-logs/code-logs.github.io.git ../../resources/'
+      )
+      child_process.execSync(
+        `cd ../../resources && git config user.name '${env.get(
+          'GITHUB_USERNAME'
+        )}' && git config user.email '${env.get('GITHUB_EMAIL')}'`
+      )
     } catch (e) {
       this.handleError(e)
       throw e

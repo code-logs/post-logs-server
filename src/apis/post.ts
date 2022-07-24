@@ -1,5 +1,7 @@
-import { Router } from 'express'
+import { Router, Request } from 'express'
+import { NamespaceBody } from 'typescript'
 import { PostController } from '../controllers/post-controller'
+import { Post } from '../types/post'
 import { asyncHandler } from '../utils/async-handler'
 
 export const postRouter = Router()
@@ -21,4 +23,22 @@ postRouter.get(
     if (!fileName) throw new Error('No file name provided')
     res.json(await PostController.getPost(fileName))
   })
+)
+
+postRouter.post(
+  '/posts',
+  asyncHandler(
+    async (
+      req: Request<
+        Record<string, unknown>,
+        Record<string, unknown>,
+        Post & { content: string; thumbnail: File }
+      >,
+      res
+    ) => {
+      const { content, thumbnail, ...post } = req.body
+      PostController.create(post, content, thumbnail)
+      res.json({})
+    }
+  )
 )

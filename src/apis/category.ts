@@ -7,7 +7,7 @@ export const categoryRouter = Router()
 categoryRouter.get(
   '/categories',
   asyncHandler(async (req, res) => {
-    const { Categories } = await ConfigController.getPostConfig()
-    res.json(Object.keys(Categories))
+    const { CATEGORIES } = await ConfigController.getPostConfig()
+    res.json(Object.keys(CATEGORIES))
   })
 )
