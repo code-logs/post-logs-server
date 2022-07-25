@@ -1,12 +1,11 @@
-import { DirUtil } from './../utils/dir-util'
 import fs from 'fs'
 import { Post } from '../entities/post'
 import { PostRef } from '../entities/post-ref'
 import { Series } from '../entities/series'
 import { PostConfig } from '../types/post'
 import { dataSource } from '../utils/data-source'
-import github from '../utils/github'
 import { Tag } from './../entities/tag'
+import { DirUtil } from './../utils/dir-util'
 import { ConfigController } from './config-controller'
 
 export class PostController {
@@ -16,7 +15,9 @@ export class PostController {
   }
 
   public static async getPosts() {
-    return await Post.find()
+    return await Post.find({
+      order: { publishedAt: 'DESC' },
+    })
   }
 
   public static async getPost(fileName: string) {

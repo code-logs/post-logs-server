@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { categoryRouter } from './category'
-import { configRouter } from './configuration'
-import { postRouter } from './post'
-import { tagRouter } from './tag'
+import { categoryRouter } from './category-router'
+import { configRouter } from './configuration-router'
+import { postRouter } from './post-router'
+import { tagRouter } from './tag-router'
 
 export const apiRouters = Router()
 
