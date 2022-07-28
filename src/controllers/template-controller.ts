@@ -1,8 +1,8 @@
-import { Post } from '../types/post'
+import { PostConfig } from '../types/post-config'
 import { ConfigController } from './config-controller'
 
 export class TemplateController {
-  public static async generatePostConfig(postConfig: Post) {
+  public static async generatePostConfig(postConfig: PostConfig) {
     const { CATEGORIES } = await ConfigController.getPostConfig()
     return `
     export interface PostRef {
@@ -441,5 +441,7 @@ export class TemplateController {
     `
   }
 
-  public static generateContentMarkdown(content: string) {}
+  public static generateContentMarkdown(content: string) {
+    return ''
+  }
 }

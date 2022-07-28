@@ -1,20 +1,13 @@
-import { DirUtil } from './../utils/dir-util'
 import { Request, Router } from 'express'
+import fs from 'fs'
 import multer from 'multer'
 import { PostController } from '../controllers/post-controller'
 import { Post } from '../entities/post'
 import { asyncHandler } from '../utils/async-handler'
+import { NewPostParam } from './../types/request-body'
+import { DirUtil } from './../utils/dir-util'
 
-const thumbnailUploader = multer({
-  storage: multer.diskStorage({
-    destination: function (_req, _file, callback) {
-      callback(null, DirUtil.THUMBNAIL_PATH)
-    },
-    filename(_req, file, callback) {
-      callback(null, file.originalname)
-    },
-  }),
-})
+const thumbnailUploader = multer({ dest: DirUtil.THUMBNAIL_PATH })
 
 export const postRouter = Router()
 
@@ -41,17 +34,93 @@ postRouter.post(
   thumbnailUploader.single('thumbnail'),
   asyncHandler(
     async (
-      req: Request<
-        unknown,
-        unknown,
-        { tempPost: string; content: string; thumbnail: File }
-      >,
+      req: Request<unknown, unknown, { tempPost: string; content: string }>,
       res
     ) => {
-      const post: Post = JSON.parse(req.body.tempPost)
-      const content = req.body.content
+      try {
+        if (!req.file) throw new Error('Thumbnail file object is missing')
+        const tempPost: NewPostParam = JSON.parse(req.body.tempPost)
+        const content = req.body.content
 
-      res.json({})
+        res.json(
+          await PostController.createPost(tempPost, content, req.file.filename)
+        )
+      } catch (e) {
+        const originalFilename = req.file?.originalname
+        if (originalFilename) {
+          fs.rmSync(`${DirUtil.THUMBNAIL_PATH}/${req.file?.filename}`, {
+            force: true,
+          })
+        }
+
+        throw e
+      }
     }
   )
+)
+
+postRouter.put(
+  '/posts/:postId',
+  thumbnailUploader.single('thumbnail'),
+  asyncHandler(async (req, res) => {
+    try {
+      const { postId } = req.params
+      const tempPost: NewPostParam = JSON.parse(req.body.tempPost)
+      const content = req.body.content
+
+      res.json(
+        await PostController.updatePost(
+          postId,
+          tempPost,
+          content,
+          req.file?.filename
+        )
+      )
+    } catch (e) {
+      if (req.file) {
+        const originalFilename = req.file?.originalname
+        if (originalFilename) {
+          fs.rmSync(`${DirUtil.THUMBNAIL_PATH}/${req.file.filename}`, {
+            force: true,
+          })
+        }
+      }
+
+      throw e
+    }
+  })
+)
+
+postRouter.delete(
+  '/posts/:fileName',
+  asyncHandler(async (req, res) => {
+    const fileName = req.params.fileName
+    if (!fileName)
+      return res
+        .status(403)
+        .send('삭제 대상 포스팅의 파일명칭을 찾을 수 없습니다.')
+
+    const post = await PostController.getPost(fileName)
+    if (!post)
+      return res.status(404).send('삭제 대상 포스팅을 찾을 수 없습니다.')
+
+    await PostController.deletePost(post)
+    res.json({ result: true })
+  })
+)
+
+postRouter.get(
+  '/modified-posts',
+  asyncHandler(async (_req, res) => {
+    res.json(
+      await Post.find({
+        where: [{ isCreated: true }, { isUpdated: true }],
+        relations: {
+          tags: true,
+          references: true,
+          series: true,
+        },
+      })
+    )
+  })
 )

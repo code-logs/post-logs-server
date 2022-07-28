@@ -30,8 +30,8 @@ export class Post extends BaseEntity {
   @Column()
   published!: boolean
 
-  @Column()
-  publishedAt!: string
+  @Column({ nullable: true, default: null })
+  publishedAt?: string
 
   @Column()
   thumbnailName!: string
@@ -42,8 +42,14 @@ export class Post extends BaseEntity {
   @OneToMany(() => Tag, (tag) => tag.post, { onDelete: 'CASCADE' })
   tags!: Tag[]
 
+  @Column({ default: false })
+  isCreated!: boolean
+
+  @Column({ default: false })
+  isUpdated!: boolean
+
   @OneToMany(() => PostRef, (postRef) => postRef.post, { onDelete: 'CASCADE' })
-  references!: PostRef[]
+  references?: PostRef[]
 
   @ManyToOne(() => Series, { onDelete: 'CASCADE' })
   series?: Series

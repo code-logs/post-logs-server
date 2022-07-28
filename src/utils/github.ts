@@ -75,8 +75,13 @@ class Github {
     try {
       this.destroyRepository()
       child_process.execSync(
-        `git clone git@github.com:code-logs/code-logs.github.io.git ${DirUtil.REPOSITORY_PATH}`
+        `git clone https://${env.get(
+          'GITHUB_API_TOKEN'
+        )}@github.com/code-logs/code-logs.github.io.git ${
+          DirUtil.REPOSITORY_PATH
+        }`
       )
+
       child_process.execSync(
         `cd ${DirUtil.REPOSITORY_PATH} && git config user.name '${env.get(
           'GITHUB_USERNAME'

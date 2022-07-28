@@ -1,7 +1,5 @@
-export interface PostRefConfig {
-  title: string
-  url: string
-}
+import { PostRefConfig } from './post-ref'
+
 export interface PostConfig {
   title: string
   fileName: string
