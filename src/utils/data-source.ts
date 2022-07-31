@@ -4,7 +4,8 @@ import entities from '../entities'
 
 export const dataSource = new DataSource({
   type: 'sqlite',
-  database: './resources/sqlite.db',
-  logging: false,
+  database: 'sqlite.db',
+  logging: true,
   entities,
+  synchronize: true,
 })

@@ -3,6 +3,8 @@ import dotenv from 'dotenv'
 type EnvKey =
   | 'PORT'
   | 'GITHUB_API_TOKEN'
+  | 'GITHUB_USERNAME'
+  | 'GITHUB_EMAIL'
   | 'POST_CONFIG_PATH'
   | 'POSTS_DIR_PATH'
 
