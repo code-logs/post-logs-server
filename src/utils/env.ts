@@ -1,8 +1,14 @@
 import dotenv from 'dotenv'
 
-type EnvKey = 'PORT'
+type EnvKey =
+  | 'PORT'
+  | 'GITHUB_API_TOKEN'
+  | 'GITHUB_USERNAME'
+  | 'GITHUB_EMAIL'
+  | 'POST_CONFIG_PATH'
+  | 'POSTS_DIR_PATH'
 
-export class Env {
+class Env {
   private config
 
   constructor() {
@@ -10,6 +16,10 @@ export class Env {
   }
 
   get(key: EnvKey) {
-    return this.config.parsed?.[key] || null
+    const value = this.config.parsed?.[key]
+    if (!value) throw new Error(`Failed to find env variable via ${key}`)
+    return value
   }
 }
+
+export const env = new Env()

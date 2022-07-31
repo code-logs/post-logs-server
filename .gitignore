@@ -1,3 +1,8 @@
 node_modules
 dist
 .env
+resources
+
+sqlite.db
+
+spec/**/*.ts

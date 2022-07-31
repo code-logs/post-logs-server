@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES6",
     "module": "CommonJS",
     "moduleResolution": "Node",
     "declaration": true,
@@ -11,6 +11,8 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   }
 }
