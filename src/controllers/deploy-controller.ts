@@ -107,7 +107,37 @@ export class DeployController {
           published: ${post.published},
           publishedAt: \`${post.publishedAt || publishedAtNow()}\`,
           thumbnailName: \`${post.thumbnailName}\`,
-          tags: [${post.tags.map(({ name }) => `\`${name}\``)}]
+          tags: [${post.tags.map(({ name }) => `\`${name}\``)}],
+          ${
+            post.references?.length
+              ? `references: [
+                  ${post.references.map(
+                    ({ title, url }) => `{
+                    title: \`${title}\`,
+                    url: \`${url}\`,
+                  }`
+                  )}
+                ],
+              `
+              : ''
+          }
+          ${
+            post.series?.prevPostTitle || post.series?.nextPostTitle
+              ? `series: {
+                  ${
+                    post.series.prevPostTitle
+                      ? `prevPostTitle: \`${post.series.prevPostTitle}\`,`
+                      : ''
+                  }
+                  ${
+                    post.series.nextPostTitle
+                      ? `nextPostTitle: \`${post.series.nextPostTitle}\`,`
+                      : ''
+                  }
+                },
+              `
+              : ''
+          }
         }
       `
     })
