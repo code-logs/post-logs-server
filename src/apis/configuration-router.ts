@@ -1,6 +1,4 @@
 import { Router } from 'express'
-import { PostController } from '../controllers/post-controller'
-import github from '../utils/github'
 import { ConfigController } from './../controllers/config-controller'
 import { asyncHandler } from './../utils/async-handler'
 
@@ -16,16 +14,28 @@ configRouter.get(
 
 configRouter.post(
   '/configurations/sync-repository',
+  asyncHandler(async (_req, res) => {
+    res.json(await ConfigController.syncRepository())
+  })
+)
+
+configRouter.post(
+  '/configurations/save-template',
   asyncHandler(async (req, res) => {
-    try {
-      github.cloneRepository()
-      await ConfigController.compilePostConfig()
-      await PostController.synchronize()
-      await ConfigController.setLastSyncDatetime()
-      res.json(true)
-    } catch (e) {
-      github.destroyRepository()
-      res.json(false)
-    }
+    const { content } = req.body
+    if (!content) res.status(403).send('No content provided')
+
+    const { value } = await ConfigController.saveTemplate(content)
+    res.json(value)
+  })
+)
+
+configRouter.get(
+  '/configurations/template',
+  asyncHandler(async (req, res) => {
+    const templateConfig = await ConfigController.getTemplate()
+    if (!templateConfig) return res.json(null)
+
+    res.json(templateConfig.value)
   })
 )

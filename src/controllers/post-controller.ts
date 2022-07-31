@@ -1,3 +1,4 @@
+import { DeployController } from './deploy-controller'
 import fs from 'fs'
 import { In } from 'typeorm'
 import { Post } from '../entities/post'
@@ -9,6 +10,8 @@ import { Tag } from './../entities/tag'
 import { NewPostParam } from './../types/request-body'
 import { DirUtil } from './../utils/dir-util'
 import { ConfigController } from './config-controller'
+import github from '../utils/github'
+import { publishedAtNow } from '../utils/date-util'
 
 export class PostController {
   public static async getPostsConfig() {
@@ -71,9 +74,8 @@ export class PostController {
   }
 
   public static async synchronize() {
-    const posts = await this.getPostsConfig()
-
     dataSource.transaction(async (trx) => {
+      const posts = await this.getPostsConfig()
       const postRepository = trx.getRepository(Post)
       const seriesRepository = trx.getRepository(Series)
       const tagRepository = trx.getRepository(Tag)
@@ -194,6 +196,8 @@ export class PostController {
         tags,
         references,
         series,
+        published = false,
+        publishedAt,
       } = newPost
 
       const post: Post = postRepository.create()
@@ -202,7 +206,13 @@ export class PostController {
       post.description = description
       post.fileName = fileName
       post.thumbnailName = thumbnailName
-      post.published = false
+      post.published = published
+      if (!publishedAt && published) {
+        post.publishedAt = publishedAtNow()
+      } else {
+        post.publishedAt = publishedAt
+      }
+
       post.content = content
 
       const newTags = await tagRepository.save(
@@ -340,6 +350,24 @@ export class PostController {
 
       await postRepository.delete(post.id)
     })
+  }
+
+  public static async getModified() {
+    return await Post.find({
+      where: [{ isCreated: true }, { isUpdated: true }],
+      relations: {
+        tags: true,
+        references: true,
+        series: true,
+      },
+    })
+  }
+
+  public static async deploy() {
+    await DeployController.generatePostConfig()
+    await DeployController.generateMarkdowns()
+    github.pushChanges()
+    await ConfigController.syncRepository()
   }
 
   private static getPostContentFromRepo(post: PostConfig) {

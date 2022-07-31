@@ -19,4 +19,6 @@ export interface NewPostParam {
   tags: NewTagParam[]
   references: NewPostRefParam[]
   series: NewSeriesParam
+  published?: boolean
+  publishedAt?: string
 }

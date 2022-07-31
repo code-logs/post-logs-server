@@ -2,7 +2,6 @@ import { Request, Router } from 'express'
 import fs from 'fs'
 import multer from 'multer'
 import { PostController } from '../controllers/post-controller'
-import { Post } from '../entities/post'
 import { asyncHandler } from '../utils/async-handler'
 import { NewPostParam } from './../types/request-body'
 import { DirUtil } from './../utils/dir-util'
@@ -112,15 +111,14 @@ postRouter.delete(
 postRouter.get(
   '/modified-posts',
   asyncHandler(async (_req, res) => {
-    res.json(
-      await Post.find({
-        where: [{ isCreated: true }, { isUpdated: true }],
-        relations: {
-          tags: true,
-          references: true,
-          series: true,
-        },
-      })
-    )
+    res.json(await PostController.getModified())
+  })
+)
+
+postRouter.post(
+  '/deploy',
+  asyncHandler(async (req, res) => {
+    await PostController.deploy()
+    res.json({ result: true })
   })
 )
