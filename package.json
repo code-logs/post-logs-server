@@ -6,13 +6,12 @@
    "author": "Jay Lee <jaylee.possible@gmail.com>",
    "license": "MIT",
    "scripts": {
-      "serve": "npm run dist/app.js",
-      "serve:dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/app.ts",
+      "serve:dev": "export NODE_ENV=development && nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/app.ts",
+      "start": "npm run dist/app.js",
       "build": "npm run clean && tsc -p ./tsconfig.build.json",
       "clean": "rm -rf ./dist",
       "lint": "eslint",
       "prettier": "prettier --write",
-      "start": "ts-node src/index.ts",
       "typeorm": "typeorm-ts-node-commonjs",
       "test": "jest"
    },

@@ -1,0 +1,1 @@
+{"version":3,"file":"post-ref.js","sourceRoot":"","sources":["../../../src/types/post-ref.ts"],"names":[],"mappings":"","sourcesContent":["import { Post } from './post.js'\n\nexport interface PostRef {\n  id: string\n  title: string\n  url: string\n  post: Post\n}\n\nexport type TempPostRef = Omit<PostRef, 'id' | 'post'> &\n  Partial<Pick<PostRef, 'id' | 'post'>>\n"]}

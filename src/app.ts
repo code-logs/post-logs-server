@@ -9,10 +9,14 @@ import vividConsole from './utils/vivid-console'
 const app = express()
 const PORT = env.get('PORT')
 
-app.use(cors({ origin: 'http://localhost:8000', credentials: true }))
+if (process.env.NODE_ENV === 'development') {
+  app.use(cors({ origin: 'http://localhost:8000', credentials: true }))
+}
+
 app.use(express.json())
 app.use(apiRouters)
 app.use(express.static(DirUtil.THUMBNAIL_PATH))
+app.use(express.static('./static'))
 
 dataSource.initialize().then(() => {
   vividConsole.log(`💽 Database connection is established.`, true)
