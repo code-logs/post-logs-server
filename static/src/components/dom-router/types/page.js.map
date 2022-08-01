@@ -1,0 +1,1 @@
+{"version":3,"file":"page.js","sourceRoot":"","sources":["../../../../../src/components/dom-router/types/page.ts"],"names":[],"mappings":"","sourcesContent":["export interface Page {\n  title?: string\n  tagName: string\n  importPath: string\n  route: string\n}\n"]}

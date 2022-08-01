@@ -1,0 +1,1 @@
+{"version":3,"file":"series.js","sourceRoot":"","sources":["../../../src/types/series.ts"],"names":[],"mappings":"","sourcesContent":["export interface Series {\n  id: string\n  prevPostTitle?: string\n  nextPostTitle?: string\n}\n\nexport type TempSeries = Omit<Series, 'id'> & Partial<Pick<Series, 'id'>>\n"]}
