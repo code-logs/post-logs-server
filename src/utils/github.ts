@@ -2,7 +2,6 @@ import { Octokit } from '@octokit/core'
 import child_process from 'child_process'
 import fs from 'fs'
 import { DirUtil } from './dir-util'
-import { env } from './env'
 import vividConsole from './vivid-console'
 
 class Github {
@@ -11,10 +10,10 @@ class Github {
   private readonly octokit
 
   constructor() {
-    this.POST_CONFIG_PATH = env.get('POST_CONFIG_PATH')
-    this.POSTS_DIR_PATH = env.get('POSTS_DIR_PATH')
+    this.POST_CONFIG_PATH = process.env.POST_CONFIG_PATH
+    this.POSTS_DIR_PATH = process.env.POSTS_DIR_PATH
     this.octokit = new Octokit({
-      auth: env.get('GITHUB_API_TOKEN'),
+      auth: process.env.GITHUB_API_TOKEN,
     })
   }
 
@@ -74,14 +73,21 @@ class Github {
   public cloneRepository() {
     try {
       this.destroyRepository()
+      const apiToken = process.env.GITHUB_API_TOKEN
+      const username = process.env.GITHUB_USERNAME
+      const email = process.env.GITHUB_EMAIL
+
+      if (!apiToken || !username || !email)
+        throw new Error('Env variable is not set properly')
+
       const cloneCommand = this.buildCloneCommand(
-        env.get('GITHUB_API_TOKEN'),
+        apiToken,
         DirUtil.REPOSITORY_PATH
       )
       child_process.execSync(cloneCommand)
       this.checkoutDraft()
-      this.configGithubUser(env.get('GITHUB_USERNAME'))
-      this.configGithubEmail(env.get('GITHUB_EMAIL'))
+      this.configGithubUser(username)
+      this.configGithubEmail(email)
     } catch (e) {
       this.handleError(e)
       throw e
@@ -107,9 +113,12 @@ class Github {
 
   public pushChanges() {
     try {
-      const token = env.get('GITHUB_API_TOKEN')
-      const username = env.get('GITHUB_USERNAME')
-      const email = env.get('GITHUB_EMAIL')
+      const token = process.env.GITHUB_API_TOKEN
+      const username = process.env.GITHUB_USERNAME
+      const email = process.env.GITHUB_EMAIL
+
+      if (!token || !username || !email)
+        throw new Error('env variable is not set properly')
 
       this.checkoutDraft()
       const pullCommand = this.buildPullCommand()

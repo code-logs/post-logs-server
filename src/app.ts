@@ -3,11 +3,10 @@ import express from 'express'
 import { apiRouters } from './apis'
 import { dataSource } from './utils/data-source'
 import { DirUtil } from './utils/dir-util'
-import { env } from './utils/env'
 import vividConsole from './utils/vivid-console'
 
 const app = express()
-const PORT = env.get('PORT')
+const PORT = process.env.PORT || 8080
 
 if (process.env.NODE_ENV === 'development') {
   app.use(cors({ origin: 'http://localhost:8000', credentials: true }))
