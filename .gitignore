@@ -6,3 +6,5 @@ resources
 sqlite.db
 
 spec/**/*.ts
+
+static

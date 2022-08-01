@@ -1,4 +1,5 @@
 import cors from 'cors'
+import { config } from 'dotenv'
 import express from 'express'
 import { apiRouters } from './apis'
 import { dataSource } from './utils/data-source'
@@ -7,6 +8,8 @@ import vividConsole from './utils/vivid-console'
 
 const app = express()
 const PORT = process.env.PORT || 8080
+
+config()
 
 if (process.env.NODE_ENV === 'development') {
   app.use(cors({ origin: 'http://localhost:8000', credentials: true }))
