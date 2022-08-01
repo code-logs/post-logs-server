@@ -7,7 +7,7 @@
    "license": "MIT",
    "scripts": {
       "serve:dev": "export NODE_ENV=development && nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/app.ts",
-      "start": "npm run dist/app.js",
+      "start": "node ./dist/app.js",
       "build": "npm run clean && tsc -p ./tsconfig.build.json",
       "clean": "rm -rf ./dist",
       "lint": "eslint",
