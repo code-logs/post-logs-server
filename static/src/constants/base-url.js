@@ -1,2 +1,2 @@
-export const BASE_URL = 'http://localhost:8080';
+export const BASE_URL = 'https://post-logs-server.herokuapp.com/'
 //# sourceMappingURL=base-url.js.map
