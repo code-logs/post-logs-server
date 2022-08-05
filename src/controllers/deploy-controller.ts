@@ -3,7 +3,7 @@ import fs from 'fs'
 import { Post } from '../entities/post'
 import { DirUtil } from '../utils/dir-util'
 import { publishedAtNow } from '../utils/date-util'
-import { kebabCase } from '../utils/str-case-util'
+import { kebabCase, readableCase } from '../utils/str-case-util'
 import { PostController } from './post-controller'
 
 export class DeployController {
@@ -89,7 +89,7 @@ export class DeployController {
       export const CATEGORIES = {
         ${categories.sort().map(
           (category) => `
-          ['${kebabCase(category)}']: '${category}'
+          ['${kebabCase(category)}']: '${readableCase(category)}'
         `
         )}
       }
