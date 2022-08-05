@@ -370,6 +370,23 @@ export class PostController {
     await ConfigController.syncRepository()
   }
 
+  public static async getPostsCount() {
+    return await Post.count()
+  }
+
+  public static async getLastPostingDate() {
+    const foundPost = await Post.findOne({
+      select: ['publishedAt'],
+      where: { published: true },
+      order: {
+        publishedAt: 'DESC',
+      },
+    })
+
+    if (!foundPost) return null
+    return foundPost.publishedAt
+  }
+
   private static getPostContentFromRepo(post: PostConfig) {
     const categoryPath = post.category
       .split(' ')

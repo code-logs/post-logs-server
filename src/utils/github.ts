@@ -5,69 +5,24 @@ import { DirUtil } from './dir-util'
 import vividConsole from './vivid-console'
 
 class Github {
-  private readonly POST_CONFIG_PATH
-  private readonly POSTS_DIR_PATH
   private readonly octokit
 
   constructor() {
-    this.POST_CONFIG_PATH = process.env.POST_CONFIG_PATH
-    this.POSTS_DIR_PATH = process.env.POSTS_DIR_PATH
     this.octokit = new Octokit({
       auth: process.env.GITHUB_API_TOKEN,
     })
   }
 
-  public async getPostConfigContent(): Promise<{
-    content: string
-    encoding: BufferEncoding
-  }> {
-    try {
-      const {
-        data: { content, encoding },
-      } = await this.octokit.request(
-        'GET /repos/{owner}/{repo}/contents/{path}?ref={ref}',
-        {
-          owner: 'code-logs',
-          repo: 'code-logs.github.io',
-          path: this.POST_CONFIG_PATH,
-          ref: 'draft',
-        }
-      )
+  public async getIssues() {
+    const { data } = await this.octokit.request(
+      'GET /repos/{owner}/{repo}/issues',
+      {
+        owner: 'code-logs',
+        repo: 'code-logs.github.io',
+      }
+    )
 
-      return { content, encoding }
-    } catch (e) {
-      this.handleError(e)
-      throw e
-    }
-  }
-
-  public async getPostMarkdown(
-    category: string,
-    fileName: string
-  ): Promise<{ content: string; encoding: BufferEncoding }> {
-    try {
-      const categoryPath = category
-        .split(' ')
-        .map((char) => char.toLowerCase())
-        .join('-')
-
-      const {
-        data: { content, encoding },
-      } = await this.octokit.request(
-        'GET /repos/{owner}/{repo}/contents/{path}?ref={ref}',
-        {
-          owner: 'code-logs',
-          repo: 'code-logs.github.io',
-          path: `${this.POSTS_DIR_PATH}/${categoryPath}/${fileName}`,
-          ref: 'draft',
-        }
-      )
-
-      return { content, encoding }
-    } catch (e) {
-      this.handleError(e)
-      throw e
-    }
+    return data
   }
 
   public cloneRepository() {

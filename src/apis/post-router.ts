@@ -122,3 +122,17 @@ postRouter.post(
     res.json({ result: true })
   })
 )
+
+postRouter.get(
+  '/total-post-count',
+  asyncHandler(async (req, res) => {
+    res.json(await PostController.getPostsCount())
+  })
+)
+
+postRouter.get(
+  '/last-posting-date',
+  asyncHandler(async (req, res) => {
+    res.json(await PostController.getLastPostingDate())
+  })
+)
