@@ -87,7 +87,7 @@ export class DeployController {
 
     return `
       export const CATEGORIES = {
-        ${categories.map(
+        ${categories.sort().map(
           (category) => `
           ['${kebabCase(category)}']: '${category}'
         `
@@ -97,8 +97,15 @@ export class DeployController {
   }
 
   private static generatePostList(posts: Post[]) {
-    const postConfigs = posts.map((post) => {
-      return `
+    const postConfigs = posts
+      .sort((postA, postB) => {
+        if (!postA.publishedAt) return 1
+        if (!postB.publishedAt) return -1
+
+        return postA.publishedAt < postB.publishedAt ? -1 : 1
+      })
+      .map((post) => {
+        return `
         {
           title: \`${post.title}\`,
           description: \`${post.description}\`,
@@ -107,16 +114,20 @@ export class DeployController {
           published: ${post.published},
           publishedAt: \`${post.publishedAt || publishedAtNow()}\`,
           thumbnailName: \`${post.thumbnailName}\`,
-          tags: [${post.tags.map(({ name }) => `\`${name}\``)}],
+          tags: [${post.tags
+            .sort((tagA, tagB) => (tagA.name < tagB.name ? -1 : 1))
+            .map(({ name }) => `\`${name}\``)}],
           ${
             post.references?.length
               ? `references: [
-                  ${post.references.map(
-                    ({ title, url }) => `{
+                  ${post.references
+                    .sort((refA, refB) => (refA.title < refB.title ? -1 : 1))
+                    .map(
+                      ({ title, url }) => `{
                     title: \`${title}\`,
                     url: \`${url}\`,
                   }`
-                  )}
+                    )}
                 ],
               `
               : ''
@@ -140,7 +151,7 @@ export class DeployController {
           }
         }
       `
-    })
+      })
 
     return `
       export const posts: Post[] = [${postConfigs}]
