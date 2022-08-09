@@ -74,7 +74,7 @@ export class PostController {
   }
 
   public static async synchronize() {
-    dataSource.transaction(async (trx) => {
+    await dataSource.transaction(async (trx) => {
       const posts = await this.getPostsConfig()
       const postRepository = trx.getRepository(Post)
       const seriesRepository = trx.getRepository(Series)
@@ -88,6 +88,7 @@ export class PostController {
           series: true,
         },
       })
+
       if (existsPosts.length) {
         const { tagIds, postRefIds, seriesIds } = existsPosts.reduce<{
           tagIds: string[]

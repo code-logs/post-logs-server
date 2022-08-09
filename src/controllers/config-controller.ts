@@ -7,29 +7,38 @@ import github from '../utils/github'
 import { PostController } from './post-controller'
 
 export const CONFIG_KEYS = {
+  TEMP_CONFIG_NAME: 'TEMP_CONFIG_NAME',
   LAST_SYNC_DATETIME: 'LAST_SYNC_DATETIME',
 }
 export class ConfigController {
-  private static destroyConfig() {
-    fs.rmSync(DirUtil.CONFIG_JS_PATH, { force: true })
+  private static async destroyConfig() {
+    const tempConfigName = await this.readTempConfigName()
+    if (tempConfigName) fs.rmSync(tempConfigName, { force: true })
   }
 
   public static async compilePostConfig() {
-    this.destroyConfig()
+    await this.destroyConfig()
 
     const postConfigTs = fs.readFileSync(DirUtil.CONFIG_TS_PATH)
     const postConfigJs = tsNode
       .create()
       .compile(postConfigTs.toString(), DirUtil.CONFIG_TS_PATH)
 
-    fs.writeFileSync(DirUtil.CONFIG_JS_PATH, postConfigJs)
+    const tempConfigName = await this.generateTempConfigName()
+    fs.writeFileSync(tempConfigName, postConfigJs)
   }
 
   public static async getPostConfig() {
-    if (!fs.existsSync(DirUtil.CONFIG_JS_PATH))
-      throw new Error('Failed to find config file')
+    const tempConfigName = await this.readTempConfigName()
+    if (!tempConfigName) {
+      throw new Error('No config name found')
+    }
 
-    return (await import(DirUtil.CONFIG_JS_PATH)) as {
+    if (!fs.existsSync(tempConfigName)) {
+      throw new Error('Failed to find config file')
+    }
+
+    return (await import(tempConfigName)) as {
       posts: PostConfig[]
       CATEGORIES: Record<string, string>
     }
@@ -87,5 +96,29 @@ export class ConfigController {
 
     templateConfig.value = content
     return await templateConfig.save()
+  }
+
+  public static async generateTempConfigName() {
+    let tempConfigName = await Configuration.findOne({
+      where: { name: CONFIG_KEYS.TEMP_CONFIG_NAME },
+    })
+    if (!tempConfigName) {
+      tempConfigName = Configuration.create()
+      tempConfigName.name = CONFIG_KEYS.TEMP_CONFIG_NAME
+    }
+    tempConfigName.value = String(Date.now())
+    const { value } = await tempConfigName.save()
+
+    return `${DirUtil.RESOURCE_DIR}/${value}`
+  }
+
+  public static async readTempConfigName() {
+    const tempConfigName = await Configuration.findOne({
+      where: { name: CONFIG_KEYS.TEMP_CONFIG_NAME },
+    })
+
+    if (!tempConfigName?.value) return null
+
+    return `${DirUtil.RESOURCE_DIR}/${tempConfigName.value}`
   }
 }
